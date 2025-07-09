@@ -1,1 +1,22 @@
+# Autoriser SSH pour l'accès distant
+ufw allow ssh
 
+# Autoriser le port VPN (UDP 1194)
+ufw allow 1194/udp
+
+# Activer le routage pour OpenVPN
+echo "net.ipv4.ip_forward=1" >> /etc/sysctl.conf
+sysctl -p
+
+# Activer le pare-feu
+ufw enable
+
+# Autoriser le routage VPN seulement vers HTTP (port 80)
+# Cela signifie que les clients VPN ne peuvent accéder qu'au web HTTP, pas HTTPS ni autre.
+ufw route allow in on tun0 out on eth0 to any port 80 proto tcp
+
+# Bloquer tous les autres ports pour les clients VPN
+ufw route deny in on tun0 out on eth0
+
+# (Facultatif) Afficher les règles actives
+ufw status numbered
